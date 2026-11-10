@@ -8,6 +8,9 @@
 
 #define CTRLTIMEOUT 5000 // in milliseconds
 
+// Identificação devolvida pelo comando 'v' (terminada em '\n').
+#define FW_VERSION "TCMon02 2.1"
+
 // Termopar Nanoshield on CS pin D8, type T thermocouple, no averaging
 NanoshieldTermoparMod tc(8, TC_TYPE_T, TC_AVG_OFF);
 
@@ -63,6 +66,9 @@ void printErrors() {
         Serial.write(0x02);
     } else if (tc.isExternalOutOfRange()) {
         Serial.write(0x04);
+    } else {
+        // Falha sem código identificado: mantém a resposta com 5 bytes.
+        Serial.write(0xFF);
     }
     Serial.write(cj >> 8);
     Serial.write(cj & 0xFF);
@@ -224,6 +230,10 @@ void loop() {
         case 'a':
           delayms = 5;
           hascmd = 'a';
+          break;
+
+        case 'v':
+          Serial.print(FW_VERSION "\n");
           break;
 
         case 't':

@@ -8,6 +8,9 @@ uint32_t lpc;
 uint16_t cj;
 uint16_t pressao;
 
+// Identificação devolvida pelo comando 'v' (terminada em '\n').
+#define FW_VERSION "TCMon01 1.1"
+
 void setup()
 {
     Serial.begin(19200,SERIAL_8N1);
@@ -37,7 +40,10 @@ void printErrors() {
         Serial.write(0x02);
     } else if (tc.isExternalOutOfRange()) {
         Serial.write(0x04);
-    } 
+    } else {
+        // Falha sem código identificado: mantém a resposta com 5 bytes.
+        Serial.write(0xFF);
+    }
     Serial.write(cj >> 8);
     Serial.write(cj & 0xFF);
 }
@@ -98,6 +104,10 @@ void loop()
                 default: tc.setType(TC_TYPE_T);
             }            
           
+        } else if (data == 'v') { // Versão do firmware
+
+            Serial.print(FW_VERSION "\n");
+
         } else if (data == 'p') {
 
             pressao = analogRead(5);
